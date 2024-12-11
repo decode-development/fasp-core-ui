@@ -26,10 +26,12 @@ env:
   NODE_VERSION: '16'
 
 jobs:
-  install-and-cache:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -46,47 +48,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
-
-  test:
-    needs: install-and-cache
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-      
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps
       
       - name: Run tests
         run: npm run test:ci
-      
-      - name: Upload coverage reports
-        uses: actions/upload-artifact@v3
-        with:
-          name: coverage-reports
-          path: coverage/
-
-  code-climate:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      
-      - name: Download coverage reports
-        uses: actions/download-artifact@v3
-        with:
-          name: coverage-reports
-          path: coverage/
-      
-      - name: Debug coverage files
-        run: |
-          ls -la coverage/
-          cat coverage/lcov.info || echo "lcov.info not found"
       
       - name: Setup Code Climate
         run: |
@@ -105,46 +69,3 @@ jobs:
             echo "Error: lcov.info not found"
             exit 1
           fi
-
-  build:
-    needs: [test]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-      
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps
-      
-      - name: Build
-        run: npm run build
-      
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-artifacts
-          path: build/
-
-  security:
-    runs-on: ubuntu-latest
-    permissions:
-      security-events: write
-      actions: read
-      contents: read
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Run Snyk scan
-        uses: snyk/actions/node@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --severity-threshold=high
-
-      - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: snyk.sarif

@@ -140,7 +140,7 @@
     "build": "react-scripts build",
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:ci": "vitest run --coverage --reporter=lcov",
+    "test:ci": "vitest run --coverage",
     "eject": "react-scripts eject"
   },
   "bugs": {
