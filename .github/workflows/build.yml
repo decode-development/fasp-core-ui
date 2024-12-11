@@ -52,6 +52,15 @@ jobs:
       - name: Run tests
         run: npm run test:ci
       
+      - name: Debug coverage directory
+        run: |
+          echo "Listing coverage directory:"
+          ls -la coverage/ || echo "Coverage directory not found"
+          echo "Current directory:"
+          pwd
+          echo "Directory structure:"
+          find . -name "lcov.info"
+      
       - name: Setup Code Climate
         run: |
           curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
@@ -67,5 +76,6 @@ jobs:
             ./cc-test-reporter upload-coverage
           else
             echo "Error: lcov.info not found"
+            find . -name "lcov.info"
             exit 1
           fi
