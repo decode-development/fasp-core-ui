@@ -8,17 +8,20 @@ export default defineConfig({
     setupFiles: './fasp-core-ui/setupTests.js',
     testTimeout: 10000,
     include: ['**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'lcov', 'json'],
+      reportsDirectory: './coverage',
+      enabled: true,
+      clean: true,
+      thresholds: {
+        statements: 80,
+        branches: 80,
+        functions: 80,
+        lines: 80,
+      }
+    }
   },
-  coverage: {
-    provider: 'v8',
-    reporter: ['text', 'lcov', 'json'],
-    reportsDirectory: './coverage',
-    thresholds: {
-      statements: 80,
-      branches: 80,
-      functions: 80,
-      lines: 80,
-    }},
   resolve: {
     alias: {
       '@': '/src',

@@ -53,16 +53,17 @@ jobs:
         run: |
           mkdir -p coverage
           npm run test:coverage
-          ls -la coverage/
+          echo "Test coverage complete, checking files:"
+          ls -la
+          echo "Coverage directory contents:"
+          ls -la coverage/ || echo "Coverage directory empty or not found"
       
       - name: Debug coverage directory
         run: |
-          echo "Listing coverage directory:"
-          ls -la coverage/ || echo "Coverage directory not found"
-          echo "Current directory:"
-          pwd
-          echo "Directory structure:"
-          find . -name "lcov.info"
+          echo "Full directory structure:"
+          find . -type f -name "*.info" 2>/dev/null || echo "No .info files found"
+          echo "Coverage directory location:"
+          find . -type d -name "coverage" 2>/dev/null || echo "No coverage directories found"
       
       - name: Setup Code Climate
         run: |
@@ -74,12 +75,14 @@ jobs:
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
         run: |
-          COVERAGE_FILE=$(find . -name "lcov.info" -not -path "./node_modules/*" | head -n 1)
+          COVERAGE_FILE=$(find . -type f -name "lcov.info" -not -path "./node_modules/*" 2>/dev/null || echo "")
           if [ -n "$COVERAGE_FILE" ]; then
             echo "Found coverage file at: $COVERAGE_FILE"
             ./cc-test-reporter format-coverage "$COVERAGE_FILE" --input-type lcov
             ./cc-test-reporter upload-coverage
           else
             echo "Error: lcov.info not found in project directory (excluding node_modules)"
+            echo "Current directory structure:"
+            ls -R
             exit 1
           fi
