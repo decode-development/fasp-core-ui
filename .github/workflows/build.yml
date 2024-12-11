@@ -2,7 +2,8 @@ name: Frontend Continuous Integration Pipeline
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - '**'
     paths-ignore:
       - '**.md'
       - 'docs/**'
@@ -11,7 +12,8 @@ on:
       - '.env.example'
       - '.github/*.md'
   pull_request:
-    branches: [ master ]
+    branches:
+      - '**'
     paths-ignore:
       - '**.md'
       - 'docs/**'
