@@ -83,6 +83,11 @@ jobs:
           name: coverage-reports
           path: coverage/
       
+      - name: Debug coverage files
+        run: |
+          ls -la coverage/
+          cat coverage/lcov.info || echo "lcov.info not found"
+      
       - name: Setup Code Climate
         run: |
           curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
@@ -93,8 +98,13 @@ jobs:
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
         run: |
-          ./cc-test-reporter format-coverage coverage/lcov.info --input-type lcov
-          ./cc-test-reporter upload-coverage
+          if [ -f coverage/lcov.info ]; then
+            ./cc-test-reporter format-coverage coverage/lcov.info --input-type lcov
+            ./cc-test-reporter upload-coverage
+          else
+            echo "Error: lcov.info not found"
+            exit 1
+          fi
 
   build:
     needs: [test]
